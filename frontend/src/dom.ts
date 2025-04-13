@@ -2,12 +2,8 @@
 export function setupDownloader() {
   const input = document.getElementById("video-url") as HTMLInputElement;
   const fetchBtn = document.getElementById("fetch-btn") as HTMLButtonElement;
-  const downloadBtn = document.getElementById(
-    "download-btn"
-  ) as HTMLButtonElement;
-  const qualitySelect = document.getElementById(
-    "quality-select"
-  ) as HTMLSelectElement;
+  const downloadBtn = document.getElementById("download-btn") as HTMLButtonElement;
+  const qualitySelect = document.getElementById("quality-select") as HTMLSelectElement;
   const status = document.getElementById("status") as HTMLParagraphElement;
 
   const API_BASE = "https://video-downloader-vbpw.onrender.com";
@@ -32,9 +28,7 @@ export function setupDownloader() {
       data.formats.forEach((fmt: any) => {
         const option = document.createElement("option");
         option.value = fmt.format_id;
-        option.textContent = `${fmt.resolution || fmt.format_note} (${
-          fmt.ext
-        })`;
+        option.textContent = `${fmt.resolution || fmt.format_note} (${fmt.ext})`;
         qualitySelect.appendChild(option);
       });
 
