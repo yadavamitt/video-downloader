@@ -2,7 +2,6 @@
 export function setupDownloader() {
   const input = document.getElementById("video-url") as HTMLInputElement;
   const fetchBtn = document.getElementById("fetch-btn") as HTMLButtonElement;
-
   const downloadBtn = document.getElementById(
     "download-btn"
   ) as HTMLButtonElement;
@@ -11,26 +10,24 @@ export function setupDownloader() {
   ) as HTMLSelectElement;
   const status = document.getElementById("status") as HTMLParagraphElement;
 
+  const API_BASE = "https://video-downloader-vbpw.onrender.com";
+
   fetchBtn.addEventListener("click", async () => {
     const url = input.value.trim();
     if (!url) return alert("Please enter a URL");
     status.textContent = "Fetching formats...";
+
     try {
-      // const res = await fetch("http://localhost:8000/formats", {
-      const res = await fetch(
-        "https://video-downloader-vbpw.onrender.com/formats",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ video_url: url }),
-        }
-      );
+      const res = await fetch(`${API_BASE}/formats`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ video_url: url }),
+      });
 
       const data = await res.json();
 
       if (!res.ok || !data.formats.length) throw new Error("No formats found");
 
-      // Populate select dropdown
       qualitySelect.innerHTML = "";
       data.formats.forEach((fmt: any) => {
         const option = document.createElement("option");
@@ -45,7 +42,7 @@ export function setupDownloader() {
       downloadBtn.style.display = "inline-block";
       status.textContent = "Select quality and download";
     } catch (err) {
-      status.textContent = "Error fetching formats";
+      status.textContent = "❌ Error fetching formats";
       console.error(err);
     }
   });
@@ -62,14 +59,10 @@ export function setupDownloader() {
     formData.append("format_id", format_id);
 
     try {
-      // const res = await fetch("http://localhost:8000/download", {
-      const res = await fetch(
-        "https://video-downloader-vbpw.onrender.com/download",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const res = await fetch(`${API_BASE}/download`, {
+        method: "POST",
+        body: formData,
+      });
 
       if (!res.ok) throw new Error("Failed to download");
 
@@ -80,7 +73,7 @@ export function setupDownloader() {
       a.download = "video.mp4";
       a.click();
 
-      // ✅ Clear input and reset UI
+      // Reset UI
       input.value = "";
       qualitySelect.innerHTML = "";
       qualitySelect.style.display = "none";
