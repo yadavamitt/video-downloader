@@ -78,7 +78,7 @@ def get_formats(data: VideoURL):
         'geo_bypass': True,
         'geo_bypass_country': 'US',
         'force_ipv4': True,
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36'
     }
 
     try:
@@ -98,7 +98,7 @@ def get_formats(data: VideoURL):
     except Exception as e:
         return {"error": str(e)}
     
-    
+
 @app.post("/download")
 async def download(request: Request, background_tasks: BackgroundTasks):
     form = await request.form()
@@ -110,13 +110,14 @@ async def download(request: Request, background_tasks: BackgroundTasks):
     output_template = os.path.join(TEMP_DIR, f"video_{timestamp}.%(ext)s")
 
     ydl_opts = {
-        'format': fmt,
-        'outtmpl': output_template,
+        'quiet': True,
+        'skip_download': True,
+        'forcejson': True,
         'nocheckcertificate': True,
         'geo_bypass': True,
         'geo_bypass_country': 'US',
         'force_ipv4': True,
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36'
     }
 
     try:
