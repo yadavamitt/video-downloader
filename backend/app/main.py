@@ -86,6 +86,10 @@ async def download(request: Request, background_tasks: BackgroundTasks):
 
     return FileResponse(filepath, filename=os.path.basename(filepath), media_type="video/mp4")
 
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=False)
+
 
 # from fastapi import FastAPI, Form, Request, BackgroundTasks
 # from fastapi.responses import FileResponse, JSONResponse
