@@ -6,7 +6,7 @@ export function setupDownloader() {
   const qualitySelect = document.getElementById("quality-select") as HTMLSelectElement;
   const status = document.getElementById("status") as HTMLParagraphElement;
 
-  const API_BASE = "https://video-downloader-vbpw.onrender.com";
+  const API_BASE = import.meta.env.VITE_API_BASE;
 
   fetchBtn.addEventListener("click", async () => {
     const url = input.value.trim();
