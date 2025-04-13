@@ -27,28 +27,28 @@ class VideoURL(BaseModel):
 def read_root():
     return {"message": "Backend is up and running 🚀"}
 
-@app.post("/formats")
-def get_formats(data: VideoURL):
-    ydl_opts = {
-        'quiet': True,
-        'skip_download': True,
-        'simulate': True,
-        'forcejson': True
-    }
+# @app.post("/formats")
+# def get_formats(data: VideoURL):
+#     ydl_opts = {
+#         'quiet': True,
+#         'skip_download': True,
+#         'simulate': True,
+#         'forcejson': True
+#     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(data.video_url, download=False)
-        formats = [
-            {
-                'format_id': f['format_id'],
-                'format_note': f.get('format_note'),
-                'resolution': f.get('resolution'),
-                'ext': f.get('ext')
-            }
-            for f in info.get('formats', [])
-            if f.get('acodec') != 'none' and f.get('vcodec') != 'none'
-        ]
-    return { "formats": formats }
+#     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+#         info = ydl.extract_info(data.video_url, download=False)
+#         formats = [
+#             {
+#                 'format_id': f['format_id'],
+#                 'format_note': f.get('format_note'),
+#                 'resolution': f.get('resolution'),
+#                 'ext': f.get('ext')
+#             }
+#             for f in info.get('formats', [])
+#             if f.get('acodec') != 'none' and f.get('vcodec') != 'none'
+#         ]
+#     return { "formats": formats }
 
 # @app.post("/download")
 # async def download(request: Request):
@@ -67,6 +67,38 @@ def get_formats(data: VideoURL):
 
 #     return FileResponse(filename, filename="video.mp4", media_type="video/mp4")
 
+@app.post("/formats")
+def get_formats(data: VideoURL):
+    ydl_opts = {
+        'quiet': True,
+        'skip_download': True,
+        'simulate': True,
+        'forcejson': True,
+        'nocheckcertificate': True,
+        'geo_bypass': True,
+        'geo_bypass_country': 'US',
+        'force_ipv4': True,
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+    }
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(data.video_url, download=False)
+            formats = [
+                {
+                    'format_id': f['format_id'],
+                    'format_note': f.get('format_note'),
+                    'resolution': f.get('resolution'),
+                    'ext': f.get('ext')
+                }
+                for f in info.get('formats', [])
+                if f.get('acodec') != 'none' and f.get('vcodec') != 'none'
+            ]
+        return {"formats": formats}
+    except Exception as e:
+        return {"error": str(e)}
+    
+    
 @app.post("/download")
 async def download(request: Request, background_tasks: BackgroundTasks):
     form = await request.form()
@@ -79,17 +111,50 @@ async def download(request: Request, background_tasks: BackgroundTasks):
 
     ydl_opts = {
         'format': fmt,
-        'outtmpl': output_template
+        'outtmpl': output_template,
+        'nocheckcertificate': True,
+        'geo_bypass': True,
+        'geo_bypass_country': 'US',
+        'force_ipv4': True,
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
-        filepath = ydl.prepare_filename(info)
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+            filepath = ydl.prepare_filename(info)
 
-    # 🧽 Cleanup after sending
-    background_tasks.add_task(os.remove, filepath)
+        # 🧽 Cleanup after sending
+        background_tasks.add_task(os.remove, filepath)
 
-    return FileResponse(filepath, filename=os.path.basename(filepath), media_type="video/mp4")
+        return FileResponse(filepath, filename=os.path.basename(filepath), media_type="video/mp4")
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# @app.post("/download")
+# async def download(request: Request, background_tasks: BackgroundTasks):
+#     form = await request.form()
+#     url = form['video_url']
+#     fmt = form.get('format_id')
+
+#     # 🕒 Generate timestamped filename
+#     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+#     output_template = os.path.join(TEMP_DIR, f"video_{timestamp}.%(ext)s")
+
+#     ydl_opts = {
+#         'format': fmt,
+#         'outtmpl': output_template
+#     }
+
+#     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+#         info = ydl.extract_info(url, download=True)
+#         filepath = ydl.prepare_filename(info)
+
+#     # 🧽 Cleanup after sending
+#     background_tasks.add_task(os.remove, filepath)
+
+#     return FileResponse(filepath, filename=os.path.basename(filepath), media_type="video/mp4")
 
 if __name__ == "__main__":
     import uvicorn
