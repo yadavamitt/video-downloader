@@ -1,14 +1,37 @@
 {
+  "version": 2,
   "builds": [
     {
       "src": "frontend/package.json",
       "use": "@vercel/static"
+    },
+    {
+      "src": "backend/app.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "src": "/api/(.*)",  // All API calls should be routed to the backend
+      "dest": "/backend/$1"
+    },
+    {
+      "src": "/(.*)",  // All other requests (static assets) should go to the frontend
+      "dest": "/frontend/$1"
     }
-  ]
+  ],
+  "regions": ["all"],  // Deploy to all regions for better availability
+  "http": {
+    "headers": {
+      "cache-control": "public, max-age=86400, immutable",  // Enable caching for static assets
+      "x-frame-options": "DENY",  // Security header to prevent embedding
+      "x-content-type-options": "nosniff"  // Security header
+    }
+  },
+  "functions": {
+    "backend/*": {
+      "maxDuration": 60,  // Set backend function timeout for better control
+      "memory": 512  // You can adjust the memory size for backend functions if necessary
+    }
+  }
 }
