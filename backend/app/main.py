@@ -22,6 +22,11 @@ app.add_middleware(
 class VideoURL(BaseModel):
     video_url: str
 
+
+@app.get("/")
+def read_root():
+    return {"message": "Backend is up and running 🚀"}
+
 @app.post("/formats")
 def get_formats(data: VideoURL):
     ydl_opts = {

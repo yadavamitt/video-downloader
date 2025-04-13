@@ -15,13 +15,16 @@ export function setupDownloader() {
     const url = input.value.trim();
     if (!url) return alert("Please enter a URL");
     status.textContent = "Fetching formats...";
-
     try {
-      const res = await fetch("http://localhost:8000/formats", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ video_url: url }),
-      });
+      // const res = await fetch("http://localhost:8000/formats", {
+      const res = await fetch(
+        "https://video-downloader-vbpw.onrender.com/formats",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ video_url: url }),
+        }
+      );
 
       const data = await res.json();
 
@@ -59,10 +62,14 @@ export function setupDownloader() {
     formData.append("format_id", format_id);
 
     try {
-      const res = await fetch("http://localhost:8000/download", {
-        method: "POST",
-        body: formData,
-      });
+      // const res = await fetch("http://localhost:8000/download", {
+      const res = await fetch(
+        "https://video-downloader-vbpw.onrender.com/download",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to download");
 
